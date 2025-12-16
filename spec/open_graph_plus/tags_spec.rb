@@ -82,6 +82,32 @@ RSpec.describe OpenGraphPlus::Tags::Root do
     end
   end
 
+  describe "#update" do
+    it "updates multiple attributes" do
+      root = described_class.new
+      root.update(title: "New Title", description: "New Description")
+
+      expect(root.title).to eq("New Title")
+      expect(root.description).to eq("New Description")
+    end
+
+    it "returns self for chaining" do
+      root = described_class.new
+      result = root.update(title: "Test")
+
+      expect(result).to eq(root)
+    end
+
+    it "can be called multiple times" do
+      root = described_class.new
+      root.update(title: "First")
+      root.update(description: "Second")
+
+      expect(root.title).to eq("First")
+      expect(root.description).to eq("Second")
+    end
+  end
+
   describe "#generate_image!" do
     it "does nothing if image is already set" do
       root = described_class.new(image_url: "https://example.com/existing.png")

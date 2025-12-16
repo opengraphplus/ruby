@@ -49,6 +49,26 @@ RSpec.describe OpenGraphPlus::Helper do
       root2 = helper.open_graph
       expect(root1).to eq(root2)
     end
+
+    it "updates existing root with keyword arguments" do
+      helper.open_graph(title: "First")
+      helper.open_graph(description: "Second")
+
+      expect(helper.open_graph.title).to eq("First")
+      expect(helper.open_graph.description).to eq("Second")
+    end
+
+    it "supports update method" do
+      helper.open_graph.update(title: "Updated Title")
+
+      expect(helper.open_graph.title).to eq("Updated Title")
+    end
+
+    it "supports block with it parameter" do
+      helper.open_graph { |og| og.title = "Block Title" }
+
+      expect(helper.open_graph.title).to eq("Block Title")
+    end
   end
 
   describe "#open_graph_tags" do

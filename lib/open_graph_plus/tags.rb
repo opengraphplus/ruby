@@ -53,6 +53,17 @@ module OpenGraphPlus
         end
       end
 
+      def image_url=(url)
+        @image = Image.new(url: url, alt: title, secure_url: url)
+      end
+
+      def update(**kwargs)
+        kwargs.each do |key, value|
+          public_send(:"#{key}=", value)
+        end
+        self
+      end
+
       def generate_image!(request_url)
         return if image
 

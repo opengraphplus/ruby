@@ -3,13 +3,10 @@
 module OpenGraphPlus
   module Helper
     def open_graph(**kwargs)
-      if block_given?
-        yield(@open_graph_root ||= Tags::Root.new(**kwargs))
-      elsif kwargs.any?
-        @open_graph_root = Tags::Root.new(**kwargs)
-      else
-        @open_graph_root ||= Tags::Root.new
-      end
+      @open_graph_root ||= Tags::Root.new
+      @open_graph_root.update(**kwargs) if kwargs.any?
+      yield(@open_graph_root) if block_given?
+      @open_graph_root
     end
 
     def open_graph_tags

@@ -6,7 +6,7 @@ module OpenGraphPlus
   class Railtie < Rails::Railtie
     initializer "opengraphplus.helpers" do
       ActiveSupport.on_load(:action_controller) do
-        include OpenGraphPlus::Helper
+        include OpenGraphPlus::Controller
       end
 
       ActiveSupport.on_load(:action_view) do

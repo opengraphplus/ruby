@@ -6,6 +6,7 @@ require_relative "open_graph_plus/tag"
 require_relative "open_graph_plus/tags"
 require_relative "open_graph_plus/tags/renderer"
 require_relative "open_graph_plus/helper"
+require_relative "open_graph_plus/controller" if defined?(Rails::Railtie)
 
 module OpenGraphPlus
   class Error < StandardError; end
