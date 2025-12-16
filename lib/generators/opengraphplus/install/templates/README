@@ -1,0 +1,31 @@
+
+OpenGraphPlus has been installed!
+
+Next steps:
+
+1. Add your API key to config/initializers/opengraphplus.rb
+   Get your API key at: https://opengraphplus.com/dashboard
+
+2. Add the helper to your layout file (e.g., app/views/layouts/application.html.erb):
+
+   <head>
+     <%%= open_graph_meta_tags %>
+   </head>
+
+3. Set Open Graph tags in your views or controllers:
+
+   In views:
+     <%% open_graph do |og|
+       og.title = "My Page Title"
+       og.description = "My Page Description"
+     end %>
+
+   In controllers:
+     open_graph do |og|
+       og.title = "My Page Title"
+       og.description = "My Page Description"
+     end
+
+4. Verify it works by checking your page source for og:image meta tags,
+   or use the preview tool at: https://opengraphplus.com/previews/new
+
