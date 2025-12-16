@@ -2,6 +2,8 @@
 
 require "active_support"
 require "active_support/concern"
+require_relative "../../../lib/opengraphplus/rails/helper"
+require_relative "../../../lib/opengraphplus/rails/controller"
 
 # Minimal mock of Rails controller behavior for testing
 module ActionController
@@ -36,15 +38,12 @@ module ActionController
   end
 end
 
-# Load controller after ActionController mock is defined
-require_relative "../../lib/open_graph_plus/controller"
-
-RSpec.describe OpenGraphPlus::Controller do
+RSpec.describe OpenGraphPlus::Rails::Controller do
   let(:mock_request) { double("request", original_url: "https://example.com/test") }
 
   let(:base_controller_class) do
     Class.new(ActionController::Base) do
-      include OpenGraphPlus::Controller
+      include OpenGraphPlus::Rails::Controller
 
       open_graph do |og|
         og.type = "website"

@@ -82,6 +82,16 @@ RSpec.describe OpenGraphPlus::Tags::Root do
     end
   end
 
+  describe "#image_url=" do
+    it "sets image from url" do
+      root = described_class.new(title: "Test")
+      root.image_url = "https://example.com/image.png"
+
+      expect(root.image.url).to eq("https://example.com/image.png")
+      expect(root.image.alt).to eq("Test")
+    end
+  end
+
   describe "#update" do
     it "updates multiple attributes" do
       root = described_class.new

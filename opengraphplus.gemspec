@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "lib/open_graph_plus/version"
+require_relative "lib/opengraphplus/version"
 
 Gem::Specification.new do |spec|
   spec.name = "opengraphplus"
