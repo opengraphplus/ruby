@@ -9,3 +9,4 @@ end
 
 require_relative "signature/generator"
 require_relative "signature/verifier"
+require_relative "signature/url"

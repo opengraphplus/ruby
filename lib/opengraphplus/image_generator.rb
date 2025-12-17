@@ -1,26 +1,16 @@
 # frozen_string_literal: true
 
-require "cgi"
-
 module OpenGraphPlus
   class ImageGenerator
     attr_reader :request
 
     def initialize(request)
       @request = request
+      @signature_url = Signature::URL.new
     end
 
     def url
-      return nil unless api_key
-
-      encoded_url = CGI.escape(request.original_url)
-      "https://opengraphplus.com/api/v1/generate?url=#{encoded_url}"
-    end
-
-    private
-
-    def api_key
-      OpenGraphPlus.configuration.api_key
+      @signature_url.build("/opengraph", url: request.original_url)
     end
   end
 end
