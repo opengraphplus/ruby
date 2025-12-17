@@ -9,8 +9,12 @@ require_relative "../../../lib/opengraphplus/rails/controller"
 module ActionController
   class Base
     class << self
-      def before_action(&block)
-        before_actions << block
+      def before_action(method_name = nil, &block)
+        if block
+          before_actions << block
+        else
+          before_actions << method_name
+        end
       end
 
       def before_actions
@@ -33,7 +37,13 @@ module ActionController
     end
 
     def run_before_actions
-      self.class.before_actions.each { |action| instance_eval(&action) }
+      self.class.before_actions.each do |action|
+        if action.is_a?(Symbol)
+          send(action)
+        else
+          instance_eval(&action)
+        end
+      end
     end
   end
 end
@@ -68,11 +78,13 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
 
   describe ".open_graph" do
     it "registers a before_action" do
-      expect(base_controller_class.before_actions.size).to eq(1)
+      # 1 for set_default_open_graph_image + 1 for open_graph block
+      expect(base_controller_class.before_actions.size).to eq(2)
     end
 
     it "child class inherits parent before_actions" do
-      expect(child_controller_class.before_actions.size).to eq(2)
+      # 1 for set_default_open_graph_image + 1 for parent open_graph + 1 for child open_graph
+      expect(child_controller_class.before_actions.size).to eq(3)
     end
   end
 

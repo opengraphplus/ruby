@@ -5,6 +5,7 @@ require_relative "opengraphplus/configuration"
 require_relative "opengraphplus/tag"
 require_relative "opengraphplus/tags"
 require_relative "opengraphplus/tags/renderer"
+require_relative "opengraphplus/image_generator"
 
 module OpenGraphPlus
   class Error < StandardError; end

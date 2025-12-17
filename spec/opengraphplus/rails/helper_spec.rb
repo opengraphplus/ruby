@@ -89,13 +89,13 @@ RSpec.describe OpenGraphPlus::Rails::Helper do
       expect(result).to include('<meta property="og:title" content="Test Title">')
     end
 
-    it "passes request URL for image generation" do
-      OpenGraphPlus.configure { |c| c.api_key = "test_key" }
+    it "renders image if set" do
+      helper.open_graph.image.url = "https://example.com/image.png"
 
       result = helper.open_graph_meta_tags
 
       expect(result).to include("og:image")
-      expect(result).to include("https%3A%2F%2Fexample.com%2Ftest")
+      expect(result).to include("https://example.com/image.png")
     end
 
     context "when request is not defined" do

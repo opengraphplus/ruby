@@ -1,145 +1,111 @@
 # frozen_string_literal: true
 
 RSpec.describe OpenGraphPlus::Tags::Image do
-  describe "#initialize" do
-    it "accepts all properties as keyword arguments" do
-      image = described_class.new(
-        url: "https://example.com/image.png",
-        width: 1200,
-        height: 630,
-        type: "image/png",
-        alt: "Alt text",
-        secure_url: "https://example.com/image.png"
-      )
+  describe "#update" do
+    it "updates attributes and returns self" do
+      image = described_class.new
+      result = image.update(url: "https://example.com/image.png", width: 1200)
 
       expect(image.url).to eq("https://example.com/image.png")
       expect(image.width).to eq(1200)
-      expect(image.height).to eq(630)
-      expect(image.type).to eq("image/png")
-      expect(image.alt).to eq("Alt text")
-      expect(image.secure_url).to eq("https://example.com/image.png")
+      expect(result).to eq(image)
+    end
+  end
+end
+
+RSpec.describe OpenGraphPlus::Tags::Twitter do
+  describe "#initialize" do
+    it "defaults card to summary_large_image" do
+      expect(described_class.new.card).to eq("summary_large_image")
+    end
+  end
+
+  describe "#update" do
+    it "updates attributes" do
+      twitter = described_class.new
+      twitter.update(site: "@example", creator: "@author", card: "summary")
+
+      expect(twitter.site).to eq("@example")
+      expect(twitter.creator).to eq("@author")
+      expect(twitter.card).to eq("summary")
+    end
+  end
+end
+
+RSpec.describe OpenGraphPlus::Tags::OpenGraph do
+  after { OpenGraphPlus.reset_configuration! }
+
+  describe "#initialize" do
+    it "defaults type to website" do
+      expect(described_class.new.type).to eq("website")
     end
 
-    it "defaults all properties to nil" do
-      image = described_class.new
-      expect(image.url).to be_nil
-      expect(image.width).to be_nil
+    it "creates an empty image" do
+      expect(described_class.new.image).to be_a(OpenGraphPlus::Tags::Image)
+    end
+  end
+
+  describe "#update" do
+    it "updates attributes" do
+      og = described_class.new
+      og.update(title: "Test", description: "Desc")
+
+      expect(og.title).to eq("Test")
+      expect(og.description).to eq("Desc")
+    end
+  end
+
+  describe "#image_url=" do
+    it "sets image url and secure_url" do
+      og = described_class.new
+      og.image_url = "https://example.com/image.png"
+
+      expect(og.image.url).to eq("https://example.com/image.png")
+      expect(og.image.secure_url).to eq("https://example.com/image.png")
     end
   end
 end
 
 RSpec.describe OpenGraphPlus::Tags::Root do
-  after do
-    OpenGraphPlus.reset_configuration!
-  end
+  after { OpenGraphPlus.reset_configuration! }
 
   describe "#initialize" do
-    it "accepts all properties as keyword arguments" do
-      root = described_class.new(
-        title: "My Title",
-        description: "My Description",
-        url: "https://example.com",
-        type: "article",
-        site_name: "Example Site",
-        locale: "en_US"
-      )
-
-      expect(root.title).to eq("My Title")
-      expect(root.description).to eq("My Description")
-      expect(root.url).to eq("https://example.com")
-      expect(root.type).to eq("article")
-      expect(root.site_name).to eq("Example Site")
-      expect(root.locale).to eq("en_US")
-    end
-
-    it "defaults type to website" do
+    it "creates og and twitter objects" do
       root = described_class.new
-      expect(root.type).to eq("website")
+      expect(root.og).to be_a(OpenGraphPlus::Tags::OpenGraph)
+      expect(root.twitter).to be_a(OpenGraphPlus::Tags::Twitter)
+    end
+  end
+
+  describe "delegation to og" do
+    it "delegates getters and setters" do
+      root = described_class.new
+      root.title = "Test"
+      root.description = "Desc"
+
+      expect(root.title).to eq("Test")
+      expect(root.og.title).to eq("Test")
+      expect(root.description).to eq("Desc")
     end
 
-    it "accepts image_url shorthand" do
-      root = described_class.new(title: "Test", image_url: "https://example.com/image.png")
-
-      expect(root.image).to be_a(OpenGraphPlus::Tags::Image)
-      expect(root.image.url).to eq("https://example.com/image.png")
-      expect(root.image.alt).to eq("Test")
-      expect(root.image.secure_url).to eq("https://example.com/image.png")
+    it "has default type" do
+      expect(described_class.new.type).to eq("website")
     end
+  end
 
-    it "accepts image as a Hash" do
-      root = described_class.new(image: { url: "https://example.com/image.png", width: 1200 })
-
-      expect(root.image).to be_a(OpenGraphPlus::Tags::Image)
-      expect(root.image.url).to eq("https://example.com/image.png")
-      expect(root.image.width).to eq(1200)
-    end
-
-    it "accepts image as an Image object" do
-      image = OpenGraphPlus::Tags::Image.new(url: "https://example.com/image.png")
-      root = described_class.new(image: image)
-
-      expect(root.image).to eq(image)
+  describe "#image" do
+    it "returns og.image" do
+      root = described_class.new
+      expect(root.image).to eq(root.og.image)
     end
   end
 
   describe "#image_url=" do
-    it "sets image from url" do
-      root = described_class.new(title: "Test")
+    it "sets og image url" do
+      root = described_class.new
       root.image_url = "https://example.com/image.png"
 
       expect(root.image.url).to eq("https://example.com/image.png")
-      expect(root.image.alt).to eq("Test")
-    end
-  end
-
-  describe "#update" do
-    it "updates multiple attributes" do
-      root = described_class.new
-      root.update(title: "New Title", description: "New Description")
-
-      expect(root.title).to eq("New Title")
-      expect(root.description).to eq("New Description")
-    end
-
-    it "returns self for chaining" do
-      root = described_class.new
-      result = root.update(title: "Test")
-
-      expect(result).to eq(root)
-    end
-
-    it "can be called multiple times" do
-      root = described_class.new
-      root.update(title: "First")
-      root.update(description: "Second")
-
-      expect(root.title).to eq("First")
-      expect(root.description).to eq("Second")
-    end
-  end
-
-  describe "#generate_image!" do
-    it "does nothing if image is already set" do
-      root = described_class.new(image_url: "https://example.com/existing.png")
-      root.generate_image!("https://example.com/page")
-
-      expect(root.image.url).to eq("https://example.com/existing.png")
-    end
-
-    it "does nothing if api_key is not configured" do
-      root = described_class.new
-      root.generate_image!("https://example.com/page")
-
-      expect(root.image).to be_nil
-    end
-
-    it "sets generated image when api_key is configured" do
-      OpenGraphPlus.configure { |c| c.api_key = "test_key" }
-
-      root = described_class.new(title: "Test")
-      root.generate_image!("https://example.com/page")
-
-      expect(root.image.url).to eq("https://opengraphplus.com/api/v1/generate?url=https%3A%2F%2Fexample.com%2Fpage")
     end
   end
 end

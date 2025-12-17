@@ -12,11 +12,6 @@ module OpenGraphPlus
 
       def open_graph_tags
         root = @open_graph_root || Tags::Root.new
-
-        if defined?(request) && request.respond_to?(:original_url)
-          root.generate_image!(request.original_url)
-        end
-
         Tags::Renderer.new(root).tags
       end
 

@@ -10,21 +10,18 @@ module OpenGraphPlus
       end
 
       def tags
-        [
-          tag("og:title", root.title),
-          tag("og:description", root.description),
-          tag("og:url", root.url),
-          tag("og:type", root.type),
-          tag("og:site_name", root.site_name),
-          tag("og:locale", root.locale),
-          tag("og:determiner", root.determiner),
-          tag("og:audio", root.audio),
-          tag("og:video", root.video),
-          *image_tags
-        ].compact
+        [*og_tags, *twitter_tags].compact
       end
 
       private
+
+      def og
+        root.og
+      end
+
+      def twitter
+        root.twitter
+      end
 
       def tag(property, content)
         return nil if content.nil?
@@ -32,10 +29,25 @@ module OpenGraphPlus
         Tag.new(property, content)
       end
 
-      def image_tags
-        return [] unless root.image
+      def og_tags
+        [
+          tag("og:title", og.title),
+          tag("og:description", og.description),
+          tag("og:url", og.url),
+          tag("og:type", og.type),
+          tag("og:site_name", og.site_name),
+          tag("og:locale", og.locale),
+          tag("og:determiner", og.determiner),
+          tag("og:audio", og.audio),
+          tag("og:video", og.video),
+          *og_image_tags
+        ]
+      end
 
-        image = root.image
+      def og_image_tags
+        return [] unless og.image
+
+        image = og.image
         [
           tag("og:image", image.url),
           tag("og:image:secure_url", image.secure_url),
@@ -44,6 +56,22 @@ module OpenGraphPlus
           tag("og:image:height", image.height),
           tag("og:image:alt", image.alt)
         ]
+      end
+
+      def twitter_tags
+        [
+          tag("twitter:card", twitter.card),
+          tag("twitter:site", twitter.site),
+          tag("twitter:creator", twitter.creator),
+          tag("twitter:title", twitter.title || og.title),
+          tag("twitter:description", twitter.description || og.description),
+          tag("twitter:image", twitter_image_url),
+          tag("twitter:image:alt", twitter.image_alt || og.image&.alt)
+        ]
+      end
+
+      def twitter_image_url
+        twitter.image || og.image&.url
       end
     end
   end

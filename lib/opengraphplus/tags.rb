@@ -1,77 +1,63 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 module OpenGraphPlus
   module Tags
-    class Image
-      attr_accessor :url, :width, :height, :type, :alt, :secure_url
-
-      def initialize(url: nil, width: nil, height: nil, type: nil, alt: nil, secure_url: nil)
-        @url = url
-        @width = width
-        @height = height
-        @type = type
-        @alt = alt
-        @secure_url = secure_url
+    class Base
+      def update(**kwargs)
+        kwargs.each { |key, value| public_send(:"#{key}=", value) }
+        self
       end
     end
 
-    class Root
-      attr_accessor :title, :description, :url, :type, :image, :site_name, :locale, :determiner, :audio, :video
+    class Image < Base
+      attr_accessor :url, :width, :height, :type, :alt, :secure_url
+    end
 
-      def initialize(
-        title: nil,
-        description: nil,
-        url: nil,
-        type: "website",
-        image: nil,
-        site_name: nil,
-        locale: nil,
-        determiner: nil,
-        audio: nil,
-        video: nil,
-        image_url: nil
-      )
-        @title = title
-        @description = description
-        @url = url
-        @type = type
-        @site_name = site_name
-        @locale = locale
-        @determiner = determiner
-        @audio = audio
-        @video = video
+    class Twitter < Base
+      attr_accessor :card, :site, :creator, :title, :description, :image, :image_alt
 
-        @image = case { image_url: image_url, image: image }
-        in { image_url: String => url }
-          Image.new(url: url, alt: title, secure_url: url)
-        in { image: Hash => kwargs }
-          Image.new(**kwargs)
-        in { image: }
-          image
-        else
-          nil
-        end
+      def initialize
+        @card = "summary_large_image"
+      end
+    end
+
+    class OpenGraph < Base
+      attr_accessor :title, :description, :url, :type, :site_name, :locale, :determiner, :audio, :video
+      attr_reader :image
+
+      def initialize
+        @type = "website"
+        @image = Image.new
       end
 
       def image_url=(url)
-        @image = Image.new(url: url, alt: title, secure_url: url)
+        @image.url = url
+        @image.secure_url = url
       end
+    end
 
-      def update(**kwargs)
-        kwargs.each do |key, value|
-          public_send(:"#{key}=", value)
-        end
-        self
-      end
+    class Root < Base
+      extend Forwardable
 
-      def generate_image!(request_url)
-        return if image
+      attr_reader :og, :twitter
 
-        api_key = OpenGraphPlus.configuration.api_key
-        return unless api_key
+      def_delegators :@og,
+        :title, :title=,
+        :description, :description=,
+        :url, :url=,
+        :type, :type=,
+        :site_name, :site_name=,
+        :locale, :locale=,
+        :determiner, :determiner=,
+        :audio, :audio=,
+        :video, :video=,
+        :image, :image_url=
 
-        encoded_url = CGI.escape(request_url)
-        @image = Image.new(url: "https://opengraphplus.com/api/v1/generate?url=#{encoded_url}")
+      def initialize
+        @og = OpenGraph.new
+        @twitter = Twitter.new
       end
     end
   end
