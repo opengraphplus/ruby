@@ -12,8 +12,7 @@ module OpenGraphPlus
     end
 
     def meta
-      escaped_content = CGI.escapeHTML(@content.to_s)
-      %(<meta property="#{@property}" content="#{escaped_content}">)
+      %(<meta property="#{escape property}" content="#{escape content}">)
     end
 
     def render_in(view_context = nil)
@@ -29,6 +28,12 @@ module OpenGraphPlus
 
     def to_s
       meta
+    end
+
+    private
+
+    def escape(content)
+      CGI.escapeHTML(content.to_s)
     end
   end
 end

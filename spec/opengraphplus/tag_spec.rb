@@ -20,6 +20,20 @@ RSpec.describe OpenGraphPlus::Tag do
       expect(tag.meta).to include("&lt;script&gt;")
       expect(tag.meta).not_to include("<script>")
     end
+
+    it "escapes HTML in property to prevent attribute breakout" do
+      tag = described_class.new("og:title\" onclick=\"alert('xss')", "Test")
+      # The quote should be escaped, preventing attribute breakout
+      expect(tag.meta).to include("og:title&quot; onclick=&quot;")
+      expect(tag.meta).not_to match(/property="[^"]*" onclick="/)
+    end
+
+    it "escapes quotes in content to prevent attribute breakout" do
+      tag = described_class.new("og:title", "Test\" onclick=\"alert('xss')")
+      # The quote should be escaped, preventing attribute breakout
+      expect(tag.meta).to include("Test&quot; onclick=&quot;")
+      expect(tag.meta).not_to match(/content="[^"]*" onclick="/)
+    end
   end
 
   describe "#render_in" do
