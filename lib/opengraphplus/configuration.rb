@@ -2,10 +2,14 @@
 
 module OpenGraphPlus
   class Configuration
-    attr_accessor :api_key
+    attr_reader :api_key
 
     def initialize
       @api_key = nil
+    end
+
+    def api_key=(value)
+      @api_key = value.is_a?(APIKey) ? value : APIKey.parse(value)
     end
   end
 

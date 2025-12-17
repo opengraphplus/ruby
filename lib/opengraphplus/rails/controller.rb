@@ -7,7 +7,7 @@ module OpenGraphPlus
 
       included do
         helper_method :open_graph, :open_graph_tags, :open_graph_meta_tags
-        before_action :set_default_open_graph_image
+        append_before_action :set_default_open_graph_image
       end
 
       class_methods do

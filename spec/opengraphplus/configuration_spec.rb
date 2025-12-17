@@ -1,21 +1,38 @@
 # frozen_string_literal: true
 
 RSpec.describe OpenGraphPlus::Configuration do
+  let(:bundled_api_key) do
+    OpenGraphPlus::APIKey.new(public_key: "test_pk", secret_key: "test_sk").to_s
+  end
+
   describe "#api_key" do
     it "defaults to nil" do
       config = described_class.new
       expect(config.api_key).to be_nil
     end
 
-    it "can be set" do
+    it "can be set with a bundled key string" do
       config = described_class.new
-      config.api_key = "test_key"
-      expect(config.api_key).to eq("test_key")
+      config.api_key = bundled_api_key
+      expect(config.api_key).to be_a(OpenGraphPlus::APIKey)
+      expect(config.api_key.public_key).to eq("test_pk")
+      expect(config.api_key.secret_key).to eq("test_sk")
+    end
+
+    it "can be set with an APIKey object" do
+      config = described_class.new
+      api_key = OpenGraphPlus::APIKey.new(public_key: "pk", secret_key: "sk")
+      config.api_key = api_key
+      expect(config.api_key).to eq(api_key)
     end
   end
 end
 
 RSpec.describe OpenGraphPlus do
+  let(:bundled_api_key) do
+    OpenGraphPlus::APIKey.new(public_key: "test_pk", secret_key: "test_sk").to_s
+  end
+
   after do
     described_class.reset_configuration!
   end
@@ -23,10 +40,11 @@ RSpec.describe OpenGraphPlus do
   describe ".configure" do
     it "yields the configuration" do
       described_class.configure do |config|
-        config.api_key = "my_api_key"
+        config.api_key = bundled_api_key
       end
 
-      expect(described_class.configuration.api_key).to eq("my_api_key")
+      expect(described_class.configuration.api_key).to be_a(OpenGraphPlus::APIKey)
+      expect(described_class.configuration.api_key.public_key).to eq("test_pk")
     end
   end
 
