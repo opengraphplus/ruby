@@ -10,7 +10,7 @@ module OpenGraphPlus
       end
 
       def tags
-        [*og_tags, *twitter_tags].compact
+        [*og_tags, *plus_tags, *twitter_tags].compact
       end
 
       private
@@ -55,6 +55,16 @@ module OpenGraphPlus
           tag("og:image:width", image.width),
           tag("og:image:height", image.height),
           tag("og:image:alt", image.alt)
+        ]
+      end
+
+      def plus_tags
+        return [] unless og.plus
+
+        plus = og.plus
+        [
+          tag("og:plus:selector", plus.selector),
+          tag("og:plus:style", plus.style)
         ]
       end
 

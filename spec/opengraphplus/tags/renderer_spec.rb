@@ -68,6 +68,44 @@ RSpec.describe OpenGraphPlus::Tags::Renderer do
       end
     end
 
+    context "plus tags" do
+      it "generates plus selector tag" do
+        root = OpenGraphPlus::Tags::Root.new
+        root.plus.selector = "article#main"
+
+        rendered = described_class.new(root).tags.map(&:to_s).join("\n")
+
+        expect(rendered).to include('<meta property="og:plus:selector" content="article#main">')
+      end
+
+      it "generates plus style tag" do
+        root = OpenGraphPlus::Tags::Root.new
+        root.plus.style = "padding: 20px; background: white;"
+
+        rendered = described_class.new(root).tags.map(&:to_s).join("\n")
+
+        expect(rendered).to include('<meta property="og:plus:style" content="padding: 20px; background: white;">')
+      end
+
+      it "generates plus style tag from hash" do
+        root = OpenGraphPlus::Tags::Root.new
+        root.plus.style = { padding: "20px", background_color: "white" }
+
+        rendered = described_class.new(root).tags.map(&:to_s).join("\n")
+
+        expect(rendered).to include('<meta property="og:plus:style" content="padding: 20px; background-color: white">')
+      end
+
+      it "skips nil plus properties" do
+        root = OpenGraphPlus::Tags::Root.new
+
+        tags = described_class.new(root).tags
+
+        expect(tags.map(&:property)).not_to include("og:plus:selector")
+        expect(tags.map(&:property)).not_to include("og:plus:style")
+      end
+    end
+
     context "twitter tags" do
       it "includes twitter:card with default value" do
         root = OpenGraphPlus::Tags::Root.new
