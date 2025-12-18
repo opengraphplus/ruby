@@ -3,7 +3,7 @@
 require "forwardable"
 
 module OpenGraphPlus
-  module Tags
+  module Namespace
     class Base
       include Enumerable
 
@@ -20,8 +20,8 @@ module OpenGraphPlus
 
       def tags = []
 
-      def render_in(view_context)
-        map { |tag| tag.render_in(view_context) }.join("\n")
+      def render_in(rails_view_context)
+        rails_view_context.safe_join(map { |tag| tag.render_in(rails_view_context) }, "\n")
       end
 
       def update(**kwargs)
@@ -72,7 +72,7 @@ module OpenGraphPlus
       end
     end
 
-    class OpenGraph < Base
+    class OG < Base
       attr_accessor :title, :description, :url, :type, :site_name, :locale, :determiner, :audio, :video
 
       def image = @image ||= Image.new
@@ -127,7 +127,7 @@ module OpenGraphPlus
     class Root < Base
       extend Forwardable
 
-      def og = @og ||= OpenGraph.new
+      def og = @og ||= OG.new
       def twitter = @twitter ||= Twitter.new
 
       def_delegators :og,
@@ -148,4 +148,7 @@ module OpenGraphPlus
       end
     end
   end
+
+  # Backwards compatibility
+  Tags = Namespace
 end

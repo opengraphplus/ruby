@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "action_view"
+
 RSpec.describe OpenGraphPlus::Tag do
   describe "#initialize" do
     it "stores property and content" do
@@ -37,25 +39,24 @@ RSpec.describe OpenGraphPlus::Tag do
   end
 
   describe "#render_in" do
-    it "returns the meta tag when no view_context" do
-      tag = described_class.new("og:title", "My Title")
-      expect(tag.render_in).to eq('<meta property="og:title" content="My Title">')
+    let(:view_context) do
+      Class.new do
+        include ActionView::Helpers::OutputSafetyHelper
+      end.new
     end
 
-    it "uses view_context.raw when available" do
+    it "returns an html_safe string" do
       tag = described_class.new("og:title", "Test")
-      view_context = double("view_context")
-      allow(view_context).to receive(:raw).with(tag.meta).and_return("raw_result")
-
-      expect(tag.render_in(view_context)).to eq("raw_result")
-    end
-
-    it "uses html_safe when view_context lacks raw but string responds to html_safe" do
-      tag = described_class.new("og:title", "Test")
-      view_context = double("view_context")
-
       result = tag.render_in(view_context)
-      expect(result).to eq(tag.meta)
+
+      expect(result).to be_html_safe
+    end
+
+    it "returns the meta tag content" do
+      tag = described_class.new("og:title", "My Title")
+      result = tag.render_in(view_context)
+
+      expect(result).to eq('<meta property="og:title" content="My Title">')
     end
   end
 

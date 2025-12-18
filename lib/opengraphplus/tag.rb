@@ -15,15 +15,8 @@ module OpenGraphPlus
       %(<meta property="#{escape property}" content="#{escape content}">)
     end
 
-    def render_in(view_context = nil)
-      result = meta
-      if view_context.respond_to?(:raw)
-        view_context.raw(result)
-      elsif result.respond_to?(:html_safe)
-        result.html_safe
-      else
-        result
-      end
+    def render_in(rails_view_context)
+      rails_view_context.raw(meta)
     end
 
     def to_s

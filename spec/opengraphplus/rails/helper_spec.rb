@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require "action_view"
 require_relative "../../../lib/opengraphplus/rails/helper"
 
 RSpec.describe OpenGraphPlus::Rails::Helper do
   let(:helper_class) do
     Class.new do
+      include ActionView::Helpers::OutputSafetyHelper
       include OpenGraphPlus::Rails::Helper
 
       attr_accessor :request
