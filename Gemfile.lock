@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opengraphplus (0.1.1)
+    opengraphplus (0.1.2)
       activesupport (>= 7.0)
 
 GEM
