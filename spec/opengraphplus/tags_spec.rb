@@ -32,6 +32,49 @@ RSpec.describe OpenGraphPlus::Tags::Twitter do
   end
 end
 
+RSpec.describe OpenGraphPlus::Tags::Plus do
+  describe "#update" do
+    it "updates attributes and returns self" do
+      plus = described_class.new
+      result = plus.update(selector: "article#main", style: "padding: 20px;")
+
+      expect(plus.selector).to eq("article#main")
+      expect(plus.style).to eq("padding: 20px;")
+      expect(result).to eq(plus)
+    end
+  end
+
+  describe "#style=" do
+    it "accepts a string" do
+      plus = described_class.new
+      plus.style = "padding: 20px; background: red;"
+
+      expect(plus.style).to eq("padding: 20px; background: red;")
+    end
+
+    it "accepts a hash and converts to CSS" do
+      plus = described_class.new
+      plus.style = { padding: "20px", background_color: "red" }
+
+      expect(plus.style).to eq("padding: 20px; background-color: red")
+    end
+
+    it "converts underscores to hyphens in hash keys" do
+      plus = described_class.new
+      plus.style = { background_attachment: "fixed", font_size: "16px" }
+
+      expect(plus.style).to eq("background-attachment: fixed; font-size: 16px")
+    end
+
+    it "preserves string keys with hyphens" do
+      plus = described_class.new
+      plus.style = { "background-color" => "blue", padding: "10px" }
+
+      expect(plus.style).to eq("background-color: blue; padding: 10px")
+    end
+  end
+end
+
 RSpec.describe OpenGraphPlus::Tags::OpenGraph do
   after { OpenGraphPlus.reset_configuration! }
 
@@ -42,6 +85,10 @@ RSpec.describe OpenGraphPlus::Tags::OpenGraph do
 
     it "creates an empty image" do
       expect(described_class.new.image).to be_a(OpenGraphPlus::Tags::Image)
+    end
+
+    it "creates an empty plus" do
+      expect(described_class.new.plus).to be_a(OpenGraphPlus::Tags::Plus)
     end
   end
 
@@ -106,6 +153,22 @@ RSpec.describe OpenGraphPlus::Tags::Root do
       root.image_url = "https://example.com/image.png"
 
       expect(root.image.url).to eq("https://example.com/image.png")
+    end
+  end
+
+  describe "#plus" do
+    it "returns og.plus" do
+      root = described_class.new
+      expect(root.plus).to eq(root.og.plus)
+    end
+
+    it "allows setting plus attributes" do
+      root = described_class.new
+      root.plus.selector = "article#main"
+      root.plus.style = "padding: 20px;"
+
+      expect(root.plus.selector).to eq("article#main")
+      expect(root.plus.style).to eq("padding: 20px;")
     end
   end
 end

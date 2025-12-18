@@ -25,16 +25,37 @@ module OpenGraphPlus
 
     class OpenGraph < Base
       attr_accessor :title, :description, :url, :type, :site_name, :locale, :determiner, :audio, :video
-      attr_reader :image
+      attr_reader :image, :plus
 
       def initialize
         @type = "website"
         @image = Image.new
+        @plus = Plus.new
       end
 
       def image_url=(url)
         @image.url = url
         @image.secure_url = url
+      end
+    end
+
+    class Plus < Base
+      attr_accessor :selector
+      attr_reader :style
+
+      def style=(value)
+        @style = case value
+        when Hash
+          hash_to_css(value)
+        else
+          value
+        end
+      end
+
+      private
+
+      def hash_to_css(hash)
+        hash.map { |k, v| "#{k.to_s.tr("_", "-")}: #{v}" }.join("; ")
       end
     end
 
@@ -53,7 +74,8 @@ module OpenGraphPlus
         :determiner, :determiner=,
         :audio, :audio=,
         :video, :video=,
-        :image, :image_url=
+        :image, :image_url=,
+        :plus
 
       def initialize
         @og = OpenGraph.new
