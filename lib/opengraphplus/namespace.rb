@@ -13,8 +13,8 @@ module OpenGraphPlus
         Tag.new(property, value) if value
       end
 
-      def render_in(rails_view_context)
-        rails_view_context.safe_join(map { |tag| tag.render_in(rails_view_context) }, "\n")
+      def render_in(_view_context = nil)
+        map { |tag| tag.render_in }.join("\n").html_safe
       end
 
       def update(**kwargs)
