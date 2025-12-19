@@ -98,7 +98,7 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
 
   describe ".open_graph" do
     it "registers a before_action" do
-      expect(base_controller_class.before_actions.size).to eq(1)
+      expect(base_controller_class.before_actions.size).to eq(2)
     end
 
     it "registers set_default_open_graph_image as appended before_action" do
@@ -106,7 +106,7 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
     end
 
     it "child class inherits parent before_actions" do
-      expect(child_controller_class.before_actions.size).to eq(2)
+      expect(child_controller_class.before_actions.size).to eq(3)
     end
   end
 
