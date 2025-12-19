@@ -7,18 +7,11 @@ module OpenGraphPlus
     class Base
       include Enumerable
 
-      def each(&)
-        tags.each do |t|
-          case t
-          when Base
-            t.each(&)
-          when Tag
-            yield t if t.content
-          end
-        end
-      end
+      def each(&) = tags.each(&)
 
-      def tags = []
+      def tag(property, value)
+        Tag.new(property, value) if value
+      end
 
       def render_in(rails_view_context)
         rails_view_context.safe_join(map { |tag| tag.render_in(rails_view_context) }, "\n")
@@ -31,23 +24,22 @@ module OpenGraphPlus
     end
 
     class Image < Base
-      attr_accessor :url, :width, :height, :type, :alt, :secure_url
+      attr_accessor :url, :secure_url, :type, :width, :height, :alt
 
       def tags
         [
-          Tag.new("og:image", url),
-          Tag.new("og:image:secure_url", secure_url),
-          Tag.new("og:image:type", type),
-          Tag.new("og:image:width", width),
-          Tag.new("og:image:height", height),
-          Tag.new("og:image:alt", alt),
-        ]
+          tag("og:image", url),
+          tag("og:image:secure_url", secure_url),
+          tag("og:image:type", type),
+          tag("og:image:width", width),
+          tag("og:image:height", height),
+          tag("og:image:alt", alt)
+        ].compact
       end
     end
 
     class Plus < Base
-      attr_accessor :selector
-      attr_reader :style
+      attr_accessor :selector, :style
 
       def style=(value)
         @style = case value
@@ -60,9 +52,9 @@ module OpenGraphPlus
 
       def tags
         [
-          Tag.new("og:plus:selector", selector),
-          Tag.new("og:plus:style", style),
-        ]
+          tag("og:plus:selector", selector),
+          tag("og:plus:style", style)
+        ].compact
       end
 
       private
@@ -75,11 +67,16 @@ module OpenGraphPlus
     class OG < Base
       attr_accessor :title, :description, :url, :type, :site_name, :locale, :determiner, :audio, :video
 
-      def image = @image ||= Image.new
-      def plus = @plus ||= Plus.new
-
       def initialize
         @type = "website"
+      end
+
+      def image
+        @image ||= Image.new
+      end
+
+      def plus
+        @plus ||= Plus.new
       end
 
       def image_url=(url)
@@ -89,46 +86,73 @@ module OpenGraphPlus
 
       def tags
         [
-          Tag.new("og:title", title),
-          Tag.new("og:description", description),
-          Tag.new("og:url", url),
-          Tag.new("og:type", type),
-          Tag.new("og:site_name", site_name),
-          Tag.new("og:locale", locale),
-          Tag.new("og:determiner", determiner),
-          Tag.new("og:audio", audio),
-          Tag.new("og:video", video),
-          image,
-          plus,
-        ]
+          tag("og:title", title),
+          tag("og:description", description),
+          tag("og:url", url),
+          tag("og:type", type),
+          tag("og:site_name", site_name),
+          tag("og:locale", locale),
+          tag("og:determiner", determiner),
+          tag("og:audio", audio),
+          tag("og:video", video),
+          *image.tags,
+          *plus.tags
+        ].compact
       end
     end
 
     class Twitter < Base
-      attr_accessor :card, :site, :creator, :title, :description, :image, :image_alt
+      class Image < Base
+        attr_accessor :url, :alt
+
+        def tags
+          [
+            tag("twitter:image", url),
+            tag("twitter:image:alt", alt)
+          ].compact
+        end
+      end
+
+      attr_accessor :card, :site, :creator, :title, :description
 
       def initialize
         @card = "summary_large_image"
       end
 
+      def image
+        @image ||= Image.new
+      end
+
+      def image_url=(url)
+        image.url = url
+      end
+
       def tags
         [
-          Tag.new("twitter:card", card),
-          Tag.new("twitter:site", site),
-          Tag.new("twitter:creator", creator),
-          Tag.new("twitter:title", title),
-          Tag.new("twitter:description", description),
-          Tag.new("twitter:image", image),
-          Tag.new("twitter:image:alt", image_alt),
-        ]
+          tag("twitter:card", card),
+          tag("twitter:site", site),
+          tag("twitter:creator", creator),
+          tag("twitter:title", title),
+          tag("twitter:description", description),
+          *image.tags
+        ].compact
       end
     end
 
     class Root < Base
       extend Forwardable
 
-      def og = @og ||= OG.new
-      def twitter = @twitter ||= Twitter.new
+      def og
+        @og ||= OG.new
+      end
+
+      def twitter
+        @twitter ||= Twitter.new
+      end
+
+      def tags
+        [*og.tags, *twitter.tags]
+      end
 
       def_delegators :og,
         :title, :title=,
@@ -142,10 +166,6 @@ module OpenGraphPlus
         :video, :video=,
         :image, :image_url=,
         :plus
-
-      def tags
-        [og, twitter]
-      end
     end
   end
 
