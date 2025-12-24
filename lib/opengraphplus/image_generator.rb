@@ -13,7 +13,7 @@ module OpenGraphPlus
 
       Signature::URL.new
         .signed_path("/api/websites/v1", api_key)
-        .build("opengraph", url: request.original_url)
+        .build("image", url: request.original_url)
     end
 
     private
