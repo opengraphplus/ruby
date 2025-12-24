@@ -1,72 +1,8 @@
 # frozen_string_literal: true
 
-require "active_support"
-require "active_support/concern"
+require "action_controller"
 require_relative "../../../lib/opengraphplus/rails/helper"
 require_relative "../../../lib/opengraphplus/rails/controller"
-
-# Minimal mock of Rails controller behavior for testing
-module ActionController
-  class Base
-    class << self
-      def before_action(method_name = nil, &block)
-        if block
-          before_actions << block
-        else
-          before_actions << method_name
-        end
-      end
-
-      def append_before_action(method_name = nil, &block)
-        if block
-          appended_before_actions << block
-        else
-          appended_before_actions << method_name
-        end
-      end
-
-      def before_actions
-        @before_actions ||= []
-      end
-
-      def appended_before_actions
-        @appended_before_actions ||= []
-      end
-
-      def inherited(subclass)
-        subclass.instance_variable_set(:@before_actions, before_actions.dup)
-        subclass.instance_variable_set(:@appended_before_actions, appended_before_actions.dup)
-      end
-
-      def helper_method(*methods)
-        # no-op for testing
-      end
-    end
-
-    attr_accessor :request
-
-    def initialize(request = nil)
-      @request = request
-    end
-
-    def run_before_actions
-      self.class.before_actions.each do |action|
-        if action.is_a?(Symbol)
-          send(action)
-        else
-          instance_eval(&action)
-        end
-      end
-      self.class.appended_before_actions.each do |action|
-        if action.is_a?(Symbol)
-          send(action)
-        else
-          instance_eval(&action)
-        end
-      end
-    end
-  end
-end
 
 RSpec.describe OpenGraphPlus::Rails::Controller do
   let(:mock_request) { double("request", original_url: "https://example.com/test") }
@@ -97,23 +33,33 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
   end
 
   describe ".open_graph" do
-    it "registers a before_action" do
-      expect(base_controller_class.before_actions.size).to eq(2)
+    it "registers before_action callbacks" do
+      callbacks = base_controller_class._process_action_callbacks.map(&:filter)
+      expect(callbacks).to include(:set_default_open_graph_image)
     end
 
-    it "registers set_default_open_graph_image as appended before_action" do
-      expect(base_controller_class.appended_before_actions).to eq([:set_default_open_graph_image])
-    end
-
-    it "child class inherits parent before_actions" do
-      expect(child_controller_class.before_actions.size).to eq(3)
+    it "child class inherits parent callbacks" do
+      callbacks = child_controller_class._process_action_callbacks.map(&:filter)
+      expect(callbacks).to include(:set_default_open_graph_image)
     end
   end
 
   describe "instance behavior" do
+    def run_callbacks(controller, controller_class)
+      controller.instance_variable_set(:@_request, mock_request)
+      controller_class._process_action_callbacks.each do |callback|
+        case callback.filter
+        when Symbol
+          controller.send(callback.filter)
+        when Proc
+          controller.instance_exec(&callback.filter)
+        end
+      end
+    end
+
     it "sets open graph tags from class-level block" do
-      controller = base_controller_class.new(mock_request)
-      controller.run_before_actions
+      controller = base_controller_class.new
+      run_callbacks(controller, base_controller_class)
 
       expect(controller.open_graph.type).to eq("website")
       expect(controller.open_graph.url).to eq("https://example.com/test")
@@ -121,8 +67,8 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
     end
 
     it "child class inherits and overrides parent tags" do
-      controller = child_controller_class.new(mock_request)
-      controller.run_before_actions
+      controller = child_controller_class.new
+      run_callbacks(controller, child_controller_class)
 
       # Inherited from parent
       expect(controller.open_graph.url).to eq("https://example.com/test")
@@ -139,10 +85,10 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
         config.api_key = bundled_key
       end
 
-      controller = base_controller_class.new(mock_request)
-      controller.run_before_actions
+      controller = base_controller_class.new
+      run_callbacks(controller, base_controller_class)
 
-      expect(controller.open_graph.image.url).to start_with("https://opengraphplus.com/v2/")
+      expect(controller.open_graph.image.url).to start_with("https://opengraphplus.com/api/websites/v1/")
       expect(controller.open_graph.image.url).to include("/opengraph?url=https%3A%2F%2Fexample.com%2Ftest")
     end
 
@@ -160,8 +106,8 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
         end
       end
 
-      controller = controller_class.new(mock_request)
-      controller.run_before_actions
+      controller = controller_class.new
+      run_callbacks(controller, controller_class)
 
       expect(controller.open_graph.image.url).to eq("https://example.com/my-image.png")
     end

@@ -20,7 +20,7 @@ RSpec.describe OpenGraphPlus::ImageGenerator do
       generator = described_class.new(request)
       url = generator.url
 
-      expect(url).to start_with("https://opengraphplus.com/v2/")
+      expect(url).to start_with("https://opengraphplus.com/api/websites/v1/")
       expect(url).to include("/opengraph?url=https%3A%2F%2Fexample.com%2Fpage")
     end
 
@@ -38,8 +38,8 @@ RSpec.describe OpenGraphPlus::ImageGenerator do
       generator = described_class.new(request)
       url = URI.parse(generator.url)
 
-      # Extract signature from path
-      signature = url.path.split("/")[2]
+      # Extract signature from path (path is /api/websites/v1/:signature/opengraph)
+      signature = url.path.split("/")[4]
       path_and_query = "/opengraph?#{url.query}"
 
       verifier = OpenGraphPlus::Signature::Verifier.new(
