@@ -62,6 +62,25 @@ RSpec.describe OpenGraphPlus::Namespace::Twitter do
   end
 end
 
+RSpec.describe OpenGraphPlus::Namespace::Viewport do
+  describe "#tags" do
+    it "generates og:plus:viewport:width tag" do
+      viewport = described_class.new
+      viewport.width = 800
+
+      tags = viewport.tags
+      expect(tags.size).to eq(1)
+      expect(tags.first.property).to eq("og:plus:viewport:width")
+      expect(tags.first.content).to eq(800)
+    end
+
+    it "returns empty array when width is nil" do
+      viewport = described_class.new
+      expect(viewport.tags).to be_empty
+    end
+  end
+end
+
 RSpec.describe OpenGraphPlus::Namespace::Plus do
   describe "#update" do
     it "updates attributes and returns self" do
@@ -71,6 +90,28 @@ RSpec.describe OpenGraphPlus::Namespace::Plus do
       expect(plus.selector).to eq("article#main")
       expect(plus.style).to eq("padding: 20px;")
       expect(result).to eq(plus)
+    end
+  end
+
+  describe "#viewport" do
+    it "returns a Viewport instance" do
+      plus = described_class.new
+      expect(plus.viewport).to be_a(OpenGraphPlus::Namespace::Viewport)
+    end
+
+    it "allows setting viewport width" do
+      plus = described_class.new
+      plus.viewport.width = 800
+
+      expect(plus.viewport.width).to eq(800)
+    end
+
+    it "includes viewport tags in plus tags" do
+      plus = described_class.new
+      plus.viewport.width = 800
+
+      properties = plus.tags.map(&:property)
+      expect(properties).to include("og:plus:viewport:width")
     end
   end
 

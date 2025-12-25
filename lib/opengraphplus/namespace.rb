@@ -38,6 +38,16 @@ module OpenGraphPlus
       end
     end
 
+    class Viewport < Base
+      attr_accessor :width
+
+      def tags
+        [
+          tag("og:plus:viewport:width", width)
+        ].compact
+      end
+    end
+
     class Plus < Base
       attr_accessor :selector, :style
 
@@ -50,10 +60,15 @@ module OpenGraphPlus
         end
       end
 
+      def viewport
+        @viewport ||= Viewport.new
+      end
+
       def tags
         [
           tag("og:plus:selector", selector),
-          tag("og:plus:style", style)
+          tag("og:plus:style", style),
+          *viewport.tags
         ].compact
       end
 
