@@ -7,11 +7,11 @@ module OpenGraphPlus
     class Base
       include Enumerable
 
-      def each(&)
+      def each(&block)
         tags.each do |t|
           case t
           when Base
-            t.each(&)
+            t.each(&block)
           when Tag
             yield t if t.content
           end

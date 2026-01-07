@@ -7,7 +7,7 @@ module OpenGraphPlus
     class Base
       include Enumerable
 
-      def each(&) = tags.each(&)
+      def each(&block) = tags.each(&block)
 
       def tag(property, value)
         Tag.new(property, value) if value
