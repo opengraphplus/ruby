@@ -1,46 +1,6 @@
 
 OpenGraphPlus has been installed!
 
-Next steps:
+For setup instructions, visit https://opengraphplus.com/guides/rails
 
-1. Add your API key to config/initializers/opengraphplus.rb
-   Get your API key at: https://opengraphplus.com/dashboard
-
-2. Add the helper to your layout file (e.g., app/views/layouts/application.html.erb):
-
-   <head>
-     <%%= open_graph_meta_tags %>
-   </head>
-
-3. Customize the default Open Graph tags in ApplicationController:
-
-   class ApplicationController < ActionController::Base
-     open_graph do |og|
-       og.type = "website"
-       og.url = request.original_url
-       og.site_name = "Your Site Name"
-     end
-   end
-
-4. Override tags in specific controllers (inherits from parent):
-
-   class ArticlesController < ApplicationController
-     before_action { @article = Article.find(params[:id]) }
-
-     open_graph do |og|
-       og.title = @article.title
-       og.description = @article.excerpt
-       og.type = "article"
-     end
-   end
-
-5. Set tags in views:
-
-   <%% open_graph do |og|
-     og.title = "My Page Title"
-     og.description = "My Page Description"
-   end %>
-
-6. Verify it works by checking your page source for og:image meta tags,
-   or use the preview tool at: https://opengraphplus.com/previews/new
-
+For a website API key, visit https://opengraphplus.com/dashboard
