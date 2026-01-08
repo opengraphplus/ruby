@@ -18,7 +18,55 @@ gem install opengraphplus
 
 ## Usage
 
-When this gem is complete, an API key will be required to connect to the gem, the it's installed, added to a layout, and it should just work.
+### Get your API key
+
+Sign up at [og.plus](https://og.plus) to get your API key.
+
+### Configuration
+
+#### Using environment variables
+
+```bash
+rails g opengraphplus:env ogp_live_████████████████████
+```
+
+This will:
+- Append `OPENGRAPHPLUS__API_KEY=ogp_live_████████████████████` to your `.env` file (or the first env file found)
+- Create `config/initializers/opengraphplus.rb`
+
+To specify a different env file:
+
+```bash
+rails g opengraphplus:env ogp_live_████████████████████ -e .envrc
+```
+
+#### Using Rails credentials
+
+```bash
+rails g opengraphplus:credentials ogp_live_████████████████████
+```
+
+This will:
+- Add `opengraphplus.api_key` to your encrypted `credentials.yml.enc`
+- Create `config/initializers/opengraphplus.rb`
+
+#### Manual configuration
+
+Run the basic install generator for a commented template:
+
+```bash
+rails g opengraphplus:install
+```
+
+Then configure manually in `config/initializers/opengraphplus.rb`:
+
+```ruby
+OpenGraphPlus.configure do |config|
+  config.api_key = ENV["OPENGRAPHPLUS__API_KEY"]
+  # or
+  config.api_key = Rails.application.credentials.opengraphplus.api_key
+end
+```
 
 ## Development
 
