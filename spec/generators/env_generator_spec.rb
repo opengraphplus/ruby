@@ -73,8 +73,8 @@ RSpec.describe Opengraphplus::Generators::EnvGenerator do
     end
 
     context "with no env file" do
-      it "skips env file creation without -e flag" do
-        run_generator
+      it "skips env file creation and shows warning" do
+        expect { run_generator }.to output(/No env file found/).to_stdout
         expect(File.exist?(".env")).to be false
       end
     end
