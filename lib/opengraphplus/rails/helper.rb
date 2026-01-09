@@ -15,7 +15,9 @@ module OpenGraphPlus
       end
 
       def open_graph_meta_tags
-        open_graph.render_in(self)
+        @open_graph_root ||= Namespace::Root.new
+        yield @open_graph_root if block_given?
+        @open_graph_root.render_in(self)
       end
     end
   end

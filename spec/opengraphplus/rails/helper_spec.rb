@@ -118,5 +118,48 @@ RSpec.describe OpenGraphPlus::Rails::Helper do
         expect(result).to include("og:type")
       end
     end
+
+    context "with block" do
+      it "yields the Root to the block" do
+        yielded = nil
+        helper.open_graph_meta_tags do |og|
+          yielded = og
+        end
+
+        expect(yielded).to be_a(OpenGraphPlus::Tags::Root)
+      end
+
+      it "renders meta tags set in the block" do
+        result = helper.open_graph_meta_tags do |og|
+          og.title = "Block Title"
+          og.description = "Block Description"
+        end
+
+        expect(result).to include('<meta property="og:title" content="Block Title">')
+        expect(result).to include('<meta property="og:description" content="Block Description">')
+      end
+
+      it "combines with previously set open_graph values" do
+        helper.open_graph(title: "Previous Title")
+
+        result = helper.open_graph_meta_tags do |og|
+          og.description = "Block Description"
+        end
+
+        expect(result).to include('<meta property="og:title" content="Previous Title">')
+        expect(result).to include('<meta property="og:description" content="Block Description">')
+      end
+
+      it "allows block values to override previous values" do
+        helper.open_graph(title: "Previous Title")
+
+        result = helper.open_graph_meta_tags do |og|
+          og.title = "New Title"
+        end
+
+        expect(result).to include('<meta property="og:title" content="New Title">')
+        expect(result).not_to include("Previous Title")
+      end
+    end
   end
 end
