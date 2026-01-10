@@ -7,7 +7,7 @@ module OpenGraphPlus
       include OpenGraphPlus::Rails::Helper
 
       included do
-        helper_method :open_graph, :open_graph_tags, :open_graph_meta_tags
+        helper_method :open_graph, :open_graph_tags, :open_graph_meta_tags, :open_graph_plus_image_url
         before_action :set_default_open_graph
         append_before_action :set_default_open_graph_image
       end
@@ -18,8 +18,8 @@ module OpenGraphPlus
         end
       end
 
-      def open_graph_image_generator
-        ImageGenerator.new(request)
+      def open_graph_plus_image_url(source_url = request.original_url)
+        OpenGraphPlus.image_url(source_url)
       end
 
       private
@@ -30,10 +30,7 @@ module OpenGraphPlus
       end
 
       def set_default_open_graph_image
-        return if open_graph.image.url
-
-        generated_url = open_graph_image_generator.url
-        open_graph.image.url = generated_url if generated_url
+        open_graph.image.url ||= open_graph_plus_image_url
       end
     end
   end

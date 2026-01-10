@@ -4,6 +4,10 @@ require_relative "opengraphplus/version"
 
 module OpenGraphPlus
   class Error < StandardError; end
+
+  def self.image_url(source_url)
+    ImageGenerator.new(configuration.api_key).url(source_url)
+  end
 end
 
 require_relative "opengraphplus/api_key"

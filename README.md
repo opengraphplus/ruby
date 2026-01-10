@@ -68,6 +68,21 @@ OpenGraphPlus.configure do |config|
 end
 ```
 
+## Capturing a Different URL
+
+By default, OpenGraphPlus screenshots the current request URL for the `og:image`. To screenshot a different URL (e.g., a public preview page when the main page requires authentication):
+
+```ruby
+class ArticlesController < ApplicationController
+  open_graph do |og|
+    og.title = "My Article"
+    og.image.url = open_graph_plus_image_url(url_for(format: :opengraph))
+  end
+end
+```
+
+The `open_graph_plus_image_url` helper is available in both controllers and views. It generates a signed URL that tells OpenGraphPlus to screenshot the provided URL instead of the current request.
+
 ## Verifying OpenGraph Tags
 
 You can verify that your pages have the required OpenGraph tags using the included command:

@@ -111,5 +111,25 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
 
       expect(controller.open_graph.image.url).to eq("https://example.com/my-image.png")
     end
+
+    it "allows overriding source URL with open_graph_plus_image_url" do
+      bundled_key = OpenGraphPlus::APIKey.new(public_key: "test_pk", secret_key: "test_sk").to_s
+      OpenGraphPlus.configure do |config|
+        config.api_key = bundled_key
+      end
+
+      controller_class = Class.new(ActionController::Base) do
+        include OpenGraphPlus::Rails::Controller
+
+        open_graph do |og|
+          og.image.url = open_graph_plus_image_url("https://example.com/custom-preview")
+        end
+      end
+
+      controller = controller_class.new
+      run_callbacks(controller, controller_class)
+
+      expect(controller.open_graph.image.url).to include("/image?url=https%3A%2F%2Fexample.com%2Fcustom-preview")
+    end
   end
 end
