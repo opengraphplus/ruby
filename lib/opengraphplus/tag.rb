@@ -23,6 +23,10 @@ module OpenGraphPlus
       meta
     end
 
+    def ==(other)
+      other.is_a?(Tag) && property == other.property && content == other.content
+    end
+
     private
 
     def escape(content)

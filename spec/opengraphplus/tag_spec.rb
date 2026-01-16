@@ -66,4 +66,34 @@ RSpec.describe OpenGraphPlus::Tag do
       expect(tag.to_s).to eq(tag.meta)
     end
   end
+
+  describe "#==" do
+    it "returns true for tags with same property and content" do
+      tag1 = described_class.new("og:title", "My Title")
+      tag2 = described_class.new("og:title", "My Title")
+
+      expect(tag1).to eq(tag2)
+    end
+
+    it "returns false for tags with different property" do
+      tag1 = described_class.new("og:title", "My Title")
+      tag2 = described_class.new("og:description", "My Title")
+
+      expect(tag1).not_to eq(tag2)
+    end
+
+    it "returns false for tags with different content" do
+      tag1 = described_class.new("og:title", "My Title")
+      tag2 = described_class.new("og:title", "Other Title")
+
+      expect(tag1).not_to eq(tag2)
+    end
+
+    it "returns false when compared to non-Tag objects" do
+      tag = described_class.new("og:title", "My Title")
+
+      expect(tag).not_to eq("og:title")
+      expect(tag).not_to eq(nil)
+    end
+  end
 end

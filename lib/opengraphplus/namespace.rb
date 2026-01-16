@@ -21,6 +21,11 @@ module OpenGraphPlus
         kwargs.each { |key, value| public_send(:"#{key}=", value) }
         self
       end
+
+      def tag_for(property)
+        find { |tag| tag.property == property }
+      end
+      alias_method :[], :tag_for
     end
 
     class Image < Base
