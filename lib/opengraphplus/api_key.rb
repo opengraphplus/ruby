@@ -6,7 +6,7 @@ require "securerandom"
 
 module OpenGraphPlus
   class APIKey
-    NAMESPACE = "ogp"
+    NAMESPACE = "ogplus"
     PUBLIC_KEY_BYTES = 16  # 22 characters when base64 encoded
     SECRET_KEY_BYTES = 32  # 43 characters when base64 encoded
 

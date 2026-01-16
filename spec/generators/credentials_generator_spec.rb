@@ -7,7 +7,7 @@ require "generators/opengraphplus/credentials/credentials_generator"
 
 RSpec.describe Opengraphplus::Generators::CredentialsGenerator do
   let(:tmpdir) { Dir.mktmpdir }
-  let(:api_key) { "ogp_test_12345" }
+  let(:api_key) { "ogplus_test_12345" }
   let(:credentials_double) { double(key?: true, read: "", write: nil) }
   let(:application_double) { double(credentials: credentials_double) }
 
@@ -24,15 +24,11 @@ RSpec.describe Opengraphplus::Generators::CredentialsGenerator do
   end
 
   describe "API key validation" do
-    it "accepts keys starting with ogp_" do
+    it "accepts keys starting with ogplus_" do
       expect { described_class.start([api_key], destination_root: tmpdir) }.not_to raise_error
     end
 
-    it "accepts keys starting with ogplus_" do
-      expect { described_class.start(["ogplus_live_12345"], destination_root: tmpdir) }.not_to raise_error
-    end
-
-    it "rejects keys not starting with ogp_ or ogplus_" do
+    it "rejects keys not starting with ogplus_" do
       expect {
         described_class.start(["invalid_key"], destination_root: tmpdir)
       }.to raise_error(SystemExit)
