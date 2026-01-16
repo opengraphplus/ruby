@@ -26,6 +26,19 @@ RSpec.describe OpenGraphPlus::Configuration do
       expect(config.api_key).to eq(api_key)
     end
   end
+
+  describe "#url" do
+    it "defaults to https://opengraphplus.com" do
+      config = described_class.new
+      expect(config.url).to eq("https://opengraphplus.com")
+    end
+
+    it "can be set to a custom URL" do
+      config = described_class.new
+      config.url = "https://custom.example.com"
+      expect(config.url).to eq("https://custom.example.com")
+    end
+  end
 end
 
 RSpec.describe OpenGraphPlus do

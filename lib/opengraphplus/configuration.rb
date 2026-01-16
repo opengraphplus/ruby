@@ -2,8 +2,13 @@
 
 module OpenGraphPlus
   class Configuration
+    DEFAULT_URL = "https://opengraphplus.com"
+
+    attr_accessor :url
+
     def initialize
       @api_key = nil
+      @url = DEFAULT_URL
     end
 
     def api_key

@@ -5,12 +5,10 @@ require "uri"
 module OpenGraphPlus
   module Signature
     class URL
-      DEFAULT_BASE_URL = "https://opengraphplus.com"
-
       attr_reader :base_uri
 
-      def initialize(base_url: nil)
-        @base_uri = URI.parse(base_url || ENV.fetch("OGPLUS_URL", DEFAULT_BASE_URL))
+      def initialize(base_url: OpenGraphPlus.configuration.url)
+        @base_uri = URI.parse(base_url)
       end
 
       def signed_path(prefix, api_key)
