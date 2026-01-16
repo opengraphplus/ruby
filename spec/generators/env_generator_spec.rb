@@ -30,7 +30,12 @@ RSpec.describe Opengraphplus::Generators::EnvGenerator do
       expect { run_generator }.not_to raise_error
     end
 
-    it "rejects keys not starting with ogp_" do
+    it "accepts keys starting with ogplus_" do
+      File.write(".env", "")
+      expect { described_class.start(["ogplus_live_12345"], destination_root: tmpdir) }.not_to raise_error
+    end
+
+    it "rejects keys not starting with ogp_ or ogplus_" do
       expect {
         described_class.start(["invalid_key"], destination_root: tmpdir)
       }.to raise_error(SystemExit)
@@ -45,14 +50,14 @@ RSpec.describe Opengraphplus::Generators::EnvGenerator do
         run_generator
         content = File.read(".env")
         expect(content).to include("EXISTING_VAR=value")
-        expect(content).to include("OPENGRAPHPLUS__API_KEY=#{api_key}")
+        expect(content).to include("OGPLUS__API_KEY=#{api_key}")
       end
 
       it "skips if already defined" do
-        File.write(".env", "OPENGRAPHPLUS__API_KEY=old_key\n")
+        File.write(".env", "OGPLUS__API_KEY=old_key\n")
         run_generator
         content = File.read(".env")
-        expect(content).to eq("OPENGRAPHPLUS__API_KEY=old_key\n")
+        expect(content).to eq("OGPLUS__API_KEY=old_key\n")
       end
     end
 
@@ -60,7 +65,7 @@ RSpec.describe Opengraphplus::Generators::EnvGenerator do
       it "creates the specified file if it doesn't exist" do
         run_generator(["-e", ".env.local"])
         expect(File.exist?(".env.local")).to be true
-        expect(File.read(".env.local")).to include("OPENGRAPHPLUS__API_KEY=#{api_key}")
+        expect(File.read(".env.local")).to include("OGPLUS__API_KEY=#{api_key}")
       end
 
       it "appends to specified file if it exists" do
@@ -68,7 +73,7 @@ RSpec.describe Opengraphplus::Generators::EnvGenerator do
         run_generator(["-e", ".envrc"])
         content = File.read(".envrc")
         expect(content).to include("export FOO=bar")
-        expect(content).to include("OPENGRAPHPLUS__API_KEY=#{api_key}")
+        expect(content).to include("OGPLUS__API_KEY=#{api_key}")
       end
     end
 
@@ -84,7 +89,7 @@ RSpec.describe Opengraphplus::Generators::EnvGenerator do
     it "creates the initializer with ENV config" do
       run_generator(["-e", ".env"])
       initializer = File.read("config/initializers/opengraphplus.rb")
-      expect(initializer).to include('ENV["OPENGRAPHPLUS__API_KEY"]')
+      expect(initializer).to include('ENV["OGPLUS__API_KEY"]')
     end
   end
 end

@@ -10,7 +10,7 @@ module OpenGraphPlus
       attr_reader :base_uri
 
       def initialize(base_url: nil)
-        @base_uri = URI.parse(base_url || ENV.fetch("OPENGRAPHPLUS_URL", DEFAULT_BASE_URL))
+        @base_uri = URI.parse(base_url || ENV.fetch("OGPLUS_URL", DEFAULT_BASE_URL))
       end
 
       def signed_path(prefix, api_key)

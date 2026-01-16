@@ -13,7 +13,7 @@ module Opengraphplus
         desc: "Specific env file to write to (e.g., .env, .envrc)"
 
       ENV_FILES = %w[.env .env.local .env.development .env.development.local .envrc].freeze
-      ENV_VAR_NAME = "OPENGRAPHPLUS__API_KEY"
+      ENV_VAR_NAME = "OGPLUS__API_KEY"
 
       def append_to_env_file
         if options[:envfile]

@@ -23,11 +23,11 @@ module Opengraphplus
         yaml_content = credentials.read.presence || ""
         config = parse_yaml(yaml_content)
 
-        config["opengraphplus"] ||= {}
-        config["opengraphplus"]["api_key"] = api_key
+        config["ogplus"] ||= {}
+        config["ogplus"]["api_key"] = api_key
 
         credentials.write(yaml_dump(config))
-        say_status :insert, "credentials.yml.enc (opengraphplus.api_key)", :green
+        say_status :insert, "credentials.yml.enc (ogplus.api_key)", :green
       end
 
       def create_initializer

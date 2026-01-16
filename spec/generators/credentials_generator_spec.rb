@@ -28,7 +28,11 @@ RSpec.describe Opengraphplus::Generators::CredentialsGenerator do
       expect { described_class.start([api_key], destination_root: tmpdir) }.not_to raise_error
     end
 
-    it "rejects keys not starting with ogp_" do
+    it "accepts keys starting with ogplus_" do
+      expect { described_class.start(["ogplus_live_12345"], destination_root: tmpdir) }.not_to raise_error
+    end
+
+    it "rejects keys not starting with ogp_ or ogplus_" do
       expect {
         described_class.start(["invalid_key"], destination_root: tmpdir)
       }.to raise_error(SystemExit)
@@ -40,7 +44,7 @@ RSpec.describe Opengraphplus::Generators::CredentialsGenerator do
       described_class.start([api_key], destination_root: tmpdir)
 
       initializer = File.read("config/initializers/opengraphplus.rb")
-      expect(initializer).to include("Rails.application.credentials.opengraphplus.api_key")
+      expect(initializer).to include("Rails.application.credentials.ogplus.api_key")
     end
   end
 
@@ -53,7 +57,7 @@ RSpec.describe Opengraphplus::Generators::CredentialsGenerator do
 
       described_class.start([api_key], destination_root: tmpdir)
 
-      expect(written_content).to include("opengraphplus")
+      expect(written_content).to include("ogplus")
       expect(written_content).to include("api_key")
       expect(written_content).to include(api_key)
     end
@@ -68,7 +72,7 @@ RSpec.describe Opengraphplus::Generators::CredentialsGenerator do
 
       expect(written_content).to include("secret_key_base")
       expect(written_content).to include("aws")
-      expect(written_content).to include("opengraphplus")
+      expect(written_content).to include("ogplus")
     end
 
     it "errors when no credentials key exists" do

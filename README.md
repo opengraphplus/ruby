@@ -27,27 +27,27 @@ Sign up at [og.plus](https://og.plus) to get your API key.
 #### Using environment variables
 
 ```bash
-rails g opengraphplus:env ogp_live_████████████████████
+rails g opengraphplus:env ogplus_live_████████████████████
 ```
 
 This will:
-- Append `OPENGRAPHPLUS__API_KEY=ogp_live_████████████████████` to your `.env` file (or the first env file found)
+- Append `OGPLUS__API_KEY=ogplus_live_████████████████████` to your `.env` file (or the first env file found)
 - Create `config/initializers/opengraphplus.rb`
 
 To specify a different env file:
 
 ```bash
-rails g opengraphplus:env ogp_live_████████████████████ -e .envrc
+rails g opengraphplus:env ogplus_live_████████████████████ -e .envrc
 ```
 
 #### Using Rails credentials
 
 ```bash
-rails g opengraphplus:credentials ogp_live_████████████████████
+rails g opengraphplus:credentials ogplus_live_████████████████████
 ```
 
 This will:
-- Add `opengraphplus.api_key` to your encrypted `credentials.yml.enc`
+- Add `ogplus.api_key` to your encrypted `credentials.yml.enc`
 - Create `config/initializers/opengraphplus.rb`
 
 #### Manual configuration
@@ -62,9 +62,9 @@ Then configure manually in `config/initializers/opengraphplus.rb`:
 
 ```ruby
 OpenGraphPlus.configure do |config|
-  config.api_key = ENV["OPENGRAPHPLUS__API_KEY"]
+  config.api_key = ENV["OGPLUS__API_KEY"]
   # or
-  config.api_key = Rails.application.credentials.opengraphplus.api_key
+  config.api_key = Rails.application.credentials.ogplus.api_key
 end
 ```
 
