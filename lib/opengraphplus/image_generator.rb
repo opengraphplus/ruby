@@ -6,12 +6,12 @@ module OpenGraphPlus
       @api_key = api_key
     end
 
-    def url(source_url)
+    def url(source_url, **params)
       return nil unless @api_key
 
       Signature::URL.new
         .signed_path("/api/websites/v1", @api_key)
-        .build("image", url: source_url)
+        .build("image", url: source_url, **params)
     end
   end
 end

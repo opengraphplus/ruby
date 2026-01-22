@@ -43,5 +43,48 @@ RSpec.describe OpenGraphPlus::ImageGenerator do
       expect(verifier.valid?("test_secret_key")).to be true
       expect(verifier.valid?("wrong_key")).to be false
     end
+
+    it "includes consumer param in the URL when provided" do
+      generator = described_class.new(bundled_api_key)
+      url = generator.url("https://example.com/page", consumer: "twitter")
+
+      expect(url).to include("consumer=twitter")
+    end
+
+    it "signs additional params so they cannot be tampered with" do
+      generator = described_class.new(bundled_api_key)
+      url = URI.parse(generator.url("https://example.com/page", consumer: "twitter"))
+
+      # Extract signature from path
+      signature = url.path.split("/")[4]
+      path_and_query = "/image?#{url.query}"
+
+      verifier = OpenGraphPlus::Signature::Verifier.new(
+        signature: signature,
+        path_and_query: path_and_query
+      )
+
+      expect(verifier.valid?("test_secret_key")).to be true
+
+      # Tampering with consumer param should invalidate signature
+      tampered_query = url.query.gsub("twitter", "facebook")
+      tampered_verifier = OpenGraphPlus::Signature::Verifier.new(
+        signature: signature,
+        path_and_query: "/image?#{tampered_query}"
+      )
+
+      expect(tampered_verifier.valid?("test_secret_key")).to be false
+    end
+
+    it "generates different signatures for different consumer values" do
+      generator = described_class.new(bundled_api_key)
+      twitter_url = generator.url("https://example.com/page", consumer: "twitter")
+      facebook_url = generator.url("https://example.com/page", consumer: "facebook")
+
+      twitter_signature = URI.parse(twitter_url).path.split("/")[4]
+      facebook_signature = URI.parse(facebook_url).path.split("/")[4]
+
+      expect(twitter_signature).not_to eq(facebook_signature)
+    end
   end
 end
