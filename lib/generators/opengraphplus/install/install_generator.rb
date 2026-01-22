@@ -24,6 +24,16 @@ module Opengraphplus
         RUBY
       end
 
+      def comment_out_allow_browser
+        application_controller = "app/controllers/application_controller.rb"
+        return unless File.exist?(application_controller)
+
+        content = File.read(application_controller)
+        return unless content =~ /^\s*allow_browser\b/
+
+        gsub_file application_controller, /^(\s*)(allow_browser.*)$/, "\\1# This blocks OpenGraph requests from consumers like Apple, LinkedIn, etc.\n\\1# \\2"
+      end
+
       def show_readme
         readme "README" if behavior == :invoke
       end
