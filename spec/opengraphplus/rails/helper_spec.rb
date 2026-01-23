@@ -18,7 +18,7 @@ RSpec.describe OpenGraphPlus::Rails::Helper do
   end
 
   let(:mock_request) do
-    double("request", original_url: "https://example.com/test")
+    double("request", url: "https://example.com/test")
   end
 
   let(:helper) { helper_class.new(mock_request) }

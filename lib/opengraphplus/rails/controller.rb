@@ -18,7 +18,7 @@ module OpenGraphPlus
         end
       end
 
-      def open_graph_plus_image_url(source_url = request.original_url)
+      def open_graph_plus_image_url(source_url = request.url)
         OpenGraphPlus.image_url(source_url)
       end
 
@@ -26,7 +26,7 @@ module OpenGraphPlus
 
       def set_default_open_graph
         open_graph.type = "website"
-        open_graph.url = request.original_url
+        open_graph.url = request.url
       end
 
       def set_default_open_graph_image

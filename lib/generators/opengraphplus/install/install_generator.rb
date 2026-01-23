@@ -17,9 +17,19 @@ module Opengraphplus
         inject_into_class "app/controllers/application_controller.rb", "ApplicationController", <<-RUBY
 
   open_graph do |og|
-    og.type = "website"
-    og.url = request.original_url
-    og.site_name = Rails.application.class.module_parent_name.titleize
+    # Change to the name of your website. Required for Open Graph
+    # consumers like Twitter.
+    og.site_name = "My Website"
+
+    if Rails.env.production?
+      # Most Rails sites don't use cache headers, so we set a default
+      # max_age in the meta tags to avoid excessive preview image rendering.
+      #
+      # If you do manage HTTP cache headers in your Rails application, you
+      # can delete this tag and/or set this in controllers that don't have
+      # caching set.
+      og.plus.cache.max_age = 10.minutes
+    end
   end
         RUBY
       end

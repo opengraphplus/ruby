@@ -81,6 +81,43 @@ RSpec.describe OpenGraphPlus::Namespace::Viewport do
   end
 end
 
+RSpec.describe OpenGraphPlus::Namespace::Cache do
+  describe "#tags" do
+    it "generates og:plus:cache:max_age tag" do
+      cache = described_class.new
+      cache.max_age = 3600
+
+      tags = cache.tags
+      expect(tags.map(&:property)).to include("og:plus:cache:max_age")
+      expect(tags.find { |t| t.property == "og:plus:cache:max_age" }.content).to eq(3600)
+    end
+
+    it "generates og:plus:cache:etag tag" do
+      cache = described_class.new
+      cache.etag = "v1.2.3"
+
+      tags = cache.tags
+      expect(tags.map(&:property)).to include("og:plus:cache:etag")
+      expect(tags.find { |t| t.property == "og:plus:cache:etag" }.content).to eq("v1.2.3")
+    end
+
+    it "generates both tags when both are set" do
+      cache = described_class.new
+      cache.max_age = 3600
+      cache.etag = "v1.2.3"
+
+      tags = cache.tags
+      expect(tags.size).to eq(2)
+      expect(tags.map(&:property)).to contain_exactly("og:plus:cache:max_age", "og:plus:cache:etag")
+    end
+
+    it "returns empty array when neither is set" do
+      cache = described_class.new
+      expect(cache.tags).to be_empty
+    end
+  end
+end
+
 RSpec.describe OpenGraphPlus::Namespace::Plus do
   describe "#update" do
     it "updates attributes and returns self" do
@@ -112,6 +149,36 @@ RSpec.describe OpenGraphPlus::Namespace::Plus do
 
       properties = plus.tags.map(&:property)
       expect(properties).to include("og:plus:viewport:width")
+    end
+  end
+
+  describe "#cache" do
+    it "returns a Cache instance" do
+      plus = described_class.new
+      expect(plus.cache).to be_a(OpenGraphPlus::Namespace::Cache)
+    end
+
+    it "allows setting cache max_age" do
+      plus = described_class.new
+      plus.cache.max_age = 3600
+
+      expect(plus.cache.max_age).to eq(3600)
+    end
+
+    it "allows setting cache etag" do
+      plus = described_class.new
+      plus.cache.etag = "v1.2.3"
+
+      expect(plus.cache.etag).to eq("v1.2.3")
+    end
+
+    it "includes cache tags in plus tags" do
+      plus = described_class.new
+      plus.cache.max_age = 3600
+      plus.cache.etag = "v1.2.3"
+
+      properties = plus.tags.map(&:property)
+      expect(properties).to include("og:plus:cache:max_age", "og:plus:cache:etag")
     end
   end
 

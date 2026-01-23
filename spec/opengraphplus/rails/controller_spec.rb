@@ -5,7 +5,7 @@ require_relative "../../../lib/opengraphplus/rails/helper"
 require_relative "../../../lib/opengraphplus/rails/controller"
 
 RSpec.describe OpenGraphPlus::Rails::Controller do
-  let(:mock_request) { double("request", original_url: "https://example.com/test") }
+  let(:mock_request) { double("request", url: "https://example.com/test") }
 
   let(:base_controller_class) do
     Class.new(ActionController::Base) do
@@ -13,7 +13,7 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
 
       open_graph do |og|
         og.type = "website"
-        og.url = request.original_url
+        og.url = request.url
         og.site_name = "Test Site"
       end
     end

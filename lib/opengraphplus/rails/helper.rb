@@ -4,7 +4,7 @@ module OpenGraphPlus
   module Rails
     module Helper
       def open_graph(**)
-        @open_graph_root ||= Namespace::Root.new
+        @open_graph_root ||= default_open_graph
         @open_graph_root.update(**)
         yield @open_graph_root if block_given?
         @open_graph_root
@@ -15,9 +15,17 @@ module OpenGraphPlus
       end
 
       def open_graph_meta_tags
-        @open_graph_root ||= Namespace::Root.new
-        yield @open_graph_root if block_given?
-        @open_graph_root.render_in(self)
+        yield open_graph if block_given?
+        open_graph.render_in(self)
+      end
+
+      protected
+
+      def default_open_graph
+        Namespace::Root.new.tap do |root|
+          root.type = "website"
+          root.url = request.url if request
+        end
       end
     end
   end

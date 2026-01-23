@@ -53,6 +53,17 @@ module OpenGraphPlus
       end
     end
 
+    class Cache < Base
+      attr_accessor :max_age, :etag
+
+      def tags
+        [
+          tag("og:plus:cache:max_age", max_age),
+          tag("og:plus:cache:etag", etag)
+        ].compact
+      end
+    end
+
     class Plus < Base
       attr_accessor :selector, :style
 
@@ -69,11 +80,16 @@ module OpenGraphPlus
         @viewport ||= Viewport.new
       end
 
+      def cache
+        @cache ||= Cache.new
+      end
+
       def tags
         [
           tag("og:plus:selector", selector),
           tag("og:plus:style", style),
-          *viewport.tags
+          *viewport.tags,
+          *cache.tags
         ].compact
       end
 
