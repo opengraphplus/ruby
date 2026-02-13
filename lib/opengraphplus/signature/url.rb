@@ -8,7 +8,7 @@ module OpenGraphPlus
       attr_reader :base
       alias :base_url :base
 
-      def initialize(url: OpenGraphPlus.configuration.url)
+      def initialize(url: OpenGraphPlus.configuration.api_url)
         @base = URI.parse(url)
       end
 
