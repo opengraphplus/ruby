@@ -5,7 +5,7 @@ require_relative "../../../lib/opengraphplus/rails/helper"
 require_relative "../../../lib/opengraphplus/rails/controller"
 
 RSpec.describe OpenGraphPlus::Rails::Controller do
-  let(:mock_request) { double("request", url: "https://example.com/test") }
+  let(:mock_request) { double("request", url: "https://example.com/test", host: "example.com", path: "/test") }
 
   let(:base_controller_class) do
     Class.new(ActionController::Base) do
@@ -110,6 +110,40 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
       run_callbacks(controller, controller_class)
 
       expect(controller.open_graph.image.url).to eq("https://example.com/my-image.png")
+    end
+
+    context "when base_url is configured" do
+      let(:simple_controller_class) do
+        Class.new(ActionController::Base) do
+          include OpenGraphPlus::Rails::Controller
+        end
+      end
+
+      before do
+        OpenGraphPlus.configure do |config|
+          config.base_url = "https://mysite.com"
+        end
+      end
+
+      it "uses base_url to resolve og:url" do
+        controller = simple_controller_class.new
+        run_callbacks(controller, simple_controller_class)
+
+        expect(controller.open_graph.url).to eq("https://mysite.com/test")
+      end
+
+      it "uses resolved URL for default image URL" do
+        bundled_key = OpenGraphPlus::APIKey.new(public_key: "test_pk", secret_key: "test_sk").to_s
+        OpenGraphPlus.configure do |config|
+          config.api_key = bundled_key
+          config.base_url = "https://mysite.com"
+        end
+
+        controller = simple_controller_class.new
+        run_callbacks(controller, simple_controller_class)
+
+        expect(controller.open_graph.image.url).to include("/image?url=https%3A%2F%2Fmysite.com%2Ftest")
+      end
     end
 
     it "allows overriding source URL with open_graph_plus_image_url" do

@@ -27,16 +27,71 @@ RSpec.describe OpenGraphPlus::Configuration do
     end
   end
 
-  describe "#url" do
+  describe "#base_url" do
+    it "defaults to nil" do
+      config = described_class.new
+      expect(config.base_url).to be_nil
+    end
+
+    it "can be set to a URL string" do
+      config = described_class.new
+      config.base_url = "https://mysite.com"
+      expect(config.base_url).to eq("https://mysite.com")
+    end
+  end
+
+  describe "#resolve_url" do
+    let(:config) { described_class.new }
+
+    context "when base_url is set" do
+      before { config.base_url = "https://mysite.com" }
+
+      it "joins base_url with request path" do
+        request = double("request", path: "/about")
+        expect(config.resolve_url(request)).to eq("https://mysite.com/about")
+      end
+
+      it "handles trailing slash on base_url" do
+        config.base_url = "https://mysite.com/"
+        request = double("request", path: "/about")
+        expect(config.resolve_url(request)).to eq("https://mysite.com/about")
+      end
+    end
+
+    context "when base_url is nil and request has a valid host" do
+      it "returns request.url" do
+        request = double("request", host: "example.com", url: "https://example.com/test")
+        expect(config.resolve_url(request)).to eq("https://example.com/test")
+      end
+    end
+
+    context "when base_url is nil and request has no valid host" do
+      it "warns and returns nil" do
+        request = double("request", host: "", url: "http://:/")
+        expect(config).to receive(:warn).with(/Cannot determine site URL/)
+        expect(config.resolve_url(request)).to be_nil
+      end
+    end
+
+    context "when base_url is nil and request does not respond to host" do
+      it "warns and returns nil" do
+        request = double("request", url: "http://:/")
+        expect(config).to receive(:warn).with(/Cannot determine site URL/)
+        expect(config.resolve_url(request)).to be_nil
+      end
+    end
+  end
+
+  describe "#api_url" do
     it "defaults to https://opengraphplus.com" do
       config = described_class.new
-      expect(config.url).to eq("https://opengraphplus.com")
+      expect(config.api_url).to eq("https://opengraphplus.com")
     end
 
     it "can be set to a custom URL" do
       config = described_class.new
-      config.url = "https://custom.example.com"
-      expect(config.url).to eq("https://custom.example.com")
+      config.api_url = "https://custom.example.com"
+      expect(config.api_url).to eq("https://custom.example.com")
     end
   end
 end
