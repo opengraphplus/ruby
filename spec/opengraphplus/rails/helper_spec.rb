@@ -18,7 +18,7 @@ RSpec.describe OpenGraphPlus::Rails::Helper do
   end
 
   let(:mock_request) do
-    double("request", url: "https://example.com/test", host: "example.com", path: "/test")
+    double("request", url: "https://example.com/test")
   end
 
   let(:helper) { helper_class.new(mock_request) }
@@ -98,19 +98,6 @@ RSpec.describe OpenGraphPlus::Rails::Helper do
 
       expect(result).to include("og:image")
       expect(result).to include("https://example.com/image.png")
-    end
-
-    context "when base_url is configured" do
-      before do
-        OpenGraphPlus.configure do |config|
-          config.base_url = "https://mysite.com"
-        end
-      end
-
-      it "uses base_url to resolve og:url" do
-        result = helper.open_graph_meta_tags
-        expect(result).to include('content="https://mysite.com/test"')
-      end
     end
 
     context "when request is not defined" do

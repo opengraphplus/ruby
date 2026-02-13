@@ -24,7 +24,6 @@ module OpenGraphPlus
       def default_open_graph
         Namespace::Root.new.tap do |root|
           root.type = "website"
-          root.url = OpenGraphPlus.configuration.resolve_url(request) if request
         end
       end
     end
