@@ -5,7 +5,7 @@ require_relative "../../../lib/opengraphplus/rails/helper"
 require_relative "../../../lib/opengraphplus/rails/controller"
 
 RSpec.describe OpenGraphPlus::Rails::Controller do
-  let(:mock_request) { double("request", url: "https://example.com/test") }
+  let(:mock_request) { double("request", url: "https://example.com/test", path: "/test") }
 
   let(:base_controller_class) do
     Class.new(ActionController::Base) do
@@ -89,7 +89,7 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
       run_callbacks(controller, base_controller_class)
 
       expect(controller.open_graph.image.url).to start_with("https://opengraphplus.com/api/websites/v1/")
-      expect(controller.open_graph.image.url).to include("/image?url=https%3A%2F%2Fexample.com%2Ftest")
+      expect(controller.open_graph.image.url).to include("/image?url=%2Ftest")
     end
 
     it "does not override image URL if already set" do
