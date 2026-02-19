@@ -19,9 +19,10 @@ module Opengraphplus
         inject_into_class "app/controllers/application_controller.rb", "ApplicationController", <<-RUBY
 
   open_graph do |og|
-    # Change to the name of your website. Required for Open Graph
-    # consumers like Twitter.
     og.site_name = "My Website"
+
+    # Render OpenGraph+ images at a mobile viewport width.
+    og.plus.viewport.width = 800
 
     if Rails.env.production?
       # Most Rails sites don't use cache headers, so we set a default
@@ -32,8 +33,18 @@ module Opengraphplus
       # caching set.
       og.plus.cache.max_age = 10.minutes
     end
+
+    # Wire up dynamic titles from your models:
+    # og.title = @product.title
   end
         RUBY
+      end
+
+      def inject_into_layout
+        layout_path = "app/views/layouts/application.html.erb"
+        return unless File.exist?(layout_path)
+
+        inject_into_file layout_path, "    <%= open_graph_meta_tags %>\n", after: /^\s*<head>\n/
       end
 
       def comment_out_allow_browser

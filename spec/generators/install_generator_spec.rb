@@ -12,12 +12,73 @@ RSpec.describe Opengraphplus::Generators::InstallGenerator do
     @original_dir = Dir.pwd
     Dir.chdir(tmpdir)
     FileUtils.mkdir_p("app/controllers")
+    FileUtils.mkdir_p("app/views/layouts")
     FileUtils.mkdir_p("config/initializers")
   end
 
   after do
     Dir.chdir(@original_dir)
     FileUtils.rm_rf(tmpdir)
+  end
+
+  describe "#inject_into_layout" do
+    it "injects open_graph_meta_tags into the layout head" do
+      File.write("app/controllers/application_controller.rb", <<~RUBY)
+        class ApplicationController < ActionController::Base
+        end
+      RUBY
+      File.write("app/views/layouts/application.html.erb", <<~ERB)
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>My App</title>
+          </head>
+          <body>
+            <%= yield %>
+          </body>
+        </html>
+      ERB
+
+      described_class.start([], destination_root: tmpdir)
+
+      content = File.read("app/views/layouts/application.html.erb")
+      expect(content).to include("<%= open_graph_meta_tags %>")
+    end
+
+    it "skips gracefully when layout does not exist" do
+      File.write("app/controllers/application_controller.rb", <<~RUBY)
+        class ApplicationController < ActionController::Base
+        end
+      RUBY
+
+      expect { described_class.start([], destination_root: tmpdir) }.not_to raise_error
+    end
+  end
+
+  describe "#inject_into_application_controller" do
+    it "includes viewport width setting" do
+      File.write("app/controllers/application_controller.rb", <<~RUBY)
+        class ApplicationController < ActionController::Base
+        end
+      RUBY
+
+      described_class.start([], destination_root: tmpdir)
+
+      content = File.read("app/controllers/application_controller.rb")
+      expect(content).to include("og.plus.viewport.width = 800")
+    end
+
+    it "includes commented-out title example" do
+      File.write("app/controllers/application_controller.rb", <<~RUBY)
+        class ApplicationController < ActionController::Base
+        end
+      RUBY
+
+      described_class.start([], destination_root: tmpdir)
+
+      content = File.read("app/controllers/application_controller.rb")
+      expect(content).to include("# og.title = @product.title")
+    end
   end
 
   describe "#comment_out_allow_browser" do
