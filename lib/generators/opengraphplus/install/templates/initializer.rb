@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Get your API key at https://opengraphplus.com/dashboard
+# Get your public key at https://opengraphplus.com/dashboard
 OpenGraphPlus.configure do |config|
-  # Use Rails credentials.
-  config.api_key = Rails.application.credentials.ogplus_api_key
-
-  # Or use ENV:
-  # config.api_key = ENV["OGPLUS__API_KEY"]
+<% if public_key.present? -%>
+  config.public_key = "<%= public_key %>"
+<% else -%>
+  # config.public_key = "your_public_key_here"
+<% end -%>
 end

@@ -7,6 +7,8 @@ module Opengraphplus
     class InstallGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
+      argument :public_key, type: :string, required: false, desc: "Your OpenGraph+ public key"
+
       desc "Creates an OpenGraphPlus initializer file and adds default Open Graph tags to ApplicationController"
 
       def copy_initializer
