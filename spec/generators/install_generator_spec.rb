@@ -21,6 +21,57 @@ RSpec.describe Opengraphplus::Generators::InstallGenerator do
     FileUtils.rm_rf(tmpdir)
   end
 
+  describe "happy path" do
+    let(:public_key) { "pk_test_abc123" }
+
+    before do
+      File.write("app/controllers/application_controller.rb", <<~RUBY)
+        class ApplicationController < ActionController::Base
+          allow_browser versions: :modern
+        end
+      RUBY
+      File.write("app/views/layouts/application.html.erb", <<~ERB)
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>My App</title>
+            <%= csp_meta_tag %>
+            <%= stylesheet_link_tag "application" %>
+          </head>
+          <body>
+            <%= yield %>
+          </body>
+        </html>
+      ERB
+
+      described_class.start([public_key], destination_root: tmpdir)
+    end
+
+    it "creates the initializer with the public key" do
+      initializer = File.read("config/initializers/opengraphplus.rb")
+      expect(initializer).to include(%(config.public_key = "#{public_key}"))
+    end
+
+    it "injects the open_graph block into ApplicationController" do
+      controller = File.read("app/controllers/application_controller.rb")
+      expect(controller).to include("open_graph do |og|")
+      expect(controller).to include("og.site_name")
+      expect(controller).to include("og.plus.viewport.width = 800")
+      expect(controller).to include("og.plus.cache.max_age = 10.minutes")
+    end
+
+    it "injects open_graph_meta_tags into the layout" do
+      layout = File.read("app/views/layouts/application.html.erb")
+      expect(layout).to include("<%= open_graph_meta_tags %>")
+    end
+
+    it "comments out allow_browser" do
+      controller = File.read("app/controllers/application_controller.rb")
+      expect(controller).to include("# allow_browser versions: :modern")
+      expect(controller).not_to match(/^\s*allow_browser/)
+    end
+  end
+
   describe "#inject_into_layout" do
     it "injects open_graph_meta_tags into the layout head" do
       File.write("app/controllers/application_controller.rb", <<~RUBY)
