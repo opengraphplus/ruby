@@ -4,19 +4,23 @@ module OpenGraphPlus
   class Configuration
     DEFAULT_URL = "https://opengraphplus.com"
 
-    attr_accessor :api_url
+    attr_accessor :api_url, :public_key, :secret_key
 
     def initialize
-      @api_key = nil
       @api_url = DEFAULT_URL
+      @public_key = nil
+      @secret_key = nil
     end
 
     def api_key
-      @api_key or warn "[OpenGraphPlus] API key not configured. Set OpenGraphPlus.configuration.api_key to enable automatic Open Graph image generation."
+      return unless @public_key && @secret_key
+      APIKey.new(public_key: @public_key, secret_key: @secret_key)
     end
 
     def api_key=(value)
-      @api_key = value.is_a?(APIKey) ? value : APIKey.parse(value)
+      parsed = value.is_a?(APIKey) ? value : APIKey.parse(value)
+      @public_key = parsed&.public_key
+      @secret_key = parsed&.secret_key
     end
   end
 

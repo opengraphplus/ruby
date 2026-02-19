@@ -5,25 +5,59 @@ RSpec.describe OpenGraphPlus::Configuration do
     OpenGraphPlus::APIKey.new(public_key: "test_pk", secret_key: "test_sk").to_s
   end
 
+  describe "#public_key and #secret_key" do
+    it "default to nil" do
+      config = described_class.new
+      expect(config.public_key).to be_nil
+      expect(config.secret_key).to be_nil
+    end
+
+    it "can be set individually" do
+      config = described_class.new
+      config.public_key = "my_pk"
+      config.secret_key = "my_sk"
+      expect(config.public_key).to eq("my_pk")
+      expect(config.secret_key).to eq("my_sk")
+    end
+  end
+
   describe "#api_key" do
-    it "defaults to nil" do
+    it "returns nil when neither key is set" do
       config = described_class.new
       expect(config.api_key).to be_nil
     end
 
-    it "can be set with a bundled key string" do
+    it "returns nil when only public_key is set" do
       config = described_class.new
-      config.api_key = bundled_api_key
-      expect(config.api_key).to be_a(OpenGraphPlus::APIKey)
-      expect(config.api_key.public_key).to eq("test_pk")
-      expect(config.api_key.secret_key).to eq("test_sk")
+      config.public_key = "my_pk"
+      expect(config.api_key).to be_nil
     end
 
-    it "can be set with an APIKey object" do
+    it "returns an APIKey when both keys are set" do
+      config = described_class.new
+      config.public_key = "my_pk"
+      config.secret_key = "my_sk"
+      expect(config.api_key).to be_a(OpenGraphPlus::APIKey)
+      expect(config.api_key.public_key).to eq("my_pk")
+      expect(config.api_key.secret_key).to eq("my_sk")
+    end
+  end
+
+  describe "#api_key=" do
+    it "unpacks a bundled key string into public_key and secret_key" do
+      config = described_class.new
+      config.api_key = bundled_api_key
+      expect(config.public_key).to eq("test_pk")
+      expect(config.secret_key).to eq("test_sk")
+      expect(config.api_key).to be_a(OpenGraphPlus::APIKey)
+    end
+
+    it "unpacks an APIKey object into public_key and secret_key" do
       config = described_class.new
       api_key = OpenGraphPlus::APIKey.new(public_key: "pk", secret_key: "sk")
       config.api_key = api_key
-      expect(config.api_key).to eq(api_key)
+      expect(config.public_key).to eq("pk")
+      expect(config.secret_key).to eq("sk")
     end
   end
 

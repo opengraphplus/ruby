@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenGraphPlus::ImageGenerator do
+RSpec.describe OpenGraphPlus::SignedImageURL do
   let(:bundled_api_key) do
     OpenGraphPlus::APIKey.new(public_key: "test_public_key", secret_key: "test_secret_key").to_s
   end

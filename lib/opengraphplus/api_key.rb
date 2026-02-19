@@ -33,6 +33,13 @@ module OpenGraphPlus
       environment == :test
     end
 
+    def ==(other)
+      other.is_a?(APIKey) &&
+        public_key == other.public_key &&
+        secret_key == other.secret_key &&
+        environment == other.environment
+    end
+
     class << self
       def generate(environment: :live)
         new(

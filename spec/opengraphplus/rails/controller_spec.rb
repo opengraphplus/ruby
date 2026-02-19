@@ -131,5 +131,16 @@ RSpec.describe OpenGraphPlus::Rails::Controller do
 
       expect(controller.open_graph.image.url).to include("/image?url=https%3A%2F%2Fexample.com%2Fcustom-preview")
     end
+
+    it "sets default domain image URL when only public_key is configured" do
+      OpenGraphPlus.configure do |config|
+        config.public_key = "test_pk"
+      end
+
+      controller = base_controller_class.new
+      run_callbacks(controller, base_controller_class)
+
+      expect(controller.open_graph.image.url).to eq("https://opengraphplus.com/api/websites/v1/domain/test_pk/image/test")
+    end
   end
 end

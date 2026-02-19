@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module OpenGraphPlus
-  class ImageGenerator
+  class SignedImageURL
     def initialize(api_key)
       @api_key = api_key
     end
