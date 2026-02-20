@@ -7,6 +7,8 @@ require "securerandom"
 module OpenGraphPlus
   class APIKey
     NAMESPACE = "ogplus"
+    PUBLIC_KEY_PREFIX = "ogplus_pk_"
+    SECRET_KEY_PREFIX = "ogplus_sk_"
     PUBLIC_KEY_BYTES = 16  # 22 characters when base64 encoded
     SECRET_KEY_BYTES = 32  # 43 characters when base64 encoded
 
@@ -43,9 +45,9 @@ module OpenGraphPlus
     class << self
       def generate(environment: :live)
         new(
-          public_key: SecureRandom.urlsafe_base64(PUBLIC_KEY_BYTES),
-          secret_key: SecureRandom.urlsafe_base64(SECRET_KEY_BYTES),
-          environment: environment
+          public_key: "#{PUBLIC_KEY_PREFIX}#{SecureRandom.urlsafe_base64(PUBLIC_KEY_BYTES)}",
+          secret_key: "#{SECRET_KEY_PREFIX}#{SecureRandom.urlsafe_base64(SECRET_KEY_BYTES)}",
+          environment:
         )
       end
 
